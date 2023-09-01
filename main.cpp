@@ -1,27 +1,14 @@
 #include <vector>
+#include <type_traits>
 #include <stdexcept>
 #include <iostream>
 
-void pop_min(std::vector<int>& src, std::vector<int>& dst);
-
-std::vector<int> sorted(std::vector<int> arr)
-{
-    std::vector<int> ret;
-    ret.reserve(arr.size());
-
-    while (arr.size() > 0)
-    {
-        pop_min(arr, ret);
-    }
-
-    return ret;
-}
-
-void pop_min(std::vector<int>& src, std::vector<int>& dst)
+template<typename T>
+void pop_min(std::vector<T>& src, std::vector<T>& dst)
 {
     if (src.size() == 0) { throw std::length_error("Expected src to have a size of at least 1!"); }
 
-    int min_value = src[0];
+    T min_value = src[0];
 
     std::vector<unsigned> idxs;
 
@@ -45,12 +32,30 @@ void pop_min(std::vector<int>& src, std::vector<int>& dst)
     }
 }
 
+template<typename T>
+std::vector<T> sorted(std::vector<T> arr)
+{
+    std::vector<T> ret;
+    ret.reserve(arr.size());
 
-void print_int_vector(const std::vector<int>& vec)
+    while (arr.size() > 0)
+    {
+        pop_min(arr, ret);
+    }
+
+    return ret;
+}
+
+template<typename T>
+void print_vector(const std::vector<T>& vec)
 {
     for (unsigned i = 0; i < vec.size(); i++)
     {
-        printf("%d", vec[i]);
+        if constexpr (std::is_same<T, int>::value) { printf("%d", vec[i]); }
+        else if constexpr (std::is_same<T, unsigned>::value) { printf("%d", vec[i]); }
+        else if constexpr (std::is_same<T, float>::value) { printf("%f", vec[i]); }
+        else if constexpr (std::is_same<T, double>::value) { printf("%lf", vec[i]); }
+
         if (i + 1 < vec.size()) { printf(", "); }
     }
 
@@ -66,11 +71,11 @@ int main()
     const std::vector<int> expected_sorted_test_arr = { -7, -3, -3, 1, 2, 4, 5, 9, 13, 21 };
 
     puts("Unsorted:");
-    print_int_vector(test_arr);
+    print_vector(test_arr);
 
     puts("Sorted:");
-    print_int_vector(sorted_test_arr);
+    print_vector(sorted_test_arr);
 
     puts("Expected:");
-    print_int_vector(expected_sorted_test_arr);
+    print_vector(expected_sorted_test_arr);
 }
